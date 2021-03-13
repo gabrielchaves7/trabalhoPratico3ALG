@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
-#include "estruturas.h"
 using namespace std;
 
 void leEntradaPrincipal(int &qtdEscalas, int &qtdMaximaEscalasParaDesconto, int &tempoMaximoDesconto)

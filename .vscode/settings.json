@@ -4,6 +4,10 @@
         "string": "cpp",
         "__split_buffer": "cpp",
         "list": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "array": "cpp",
+        "string_view": "cpp",
+        "unordered_map": "cpp",
+        "iostream": "cpp"
     }
 }
