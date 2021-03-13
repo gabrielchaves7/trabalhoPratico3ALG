@@ -20,4 +20,15 @@ public:
     void adicionarDesconto(int desconto){
         this->valores.push_back(desconto);
     }
+    int obterDescontoCumulativo(int posicao){
+        int resultado = 0;
+        for(int i =0; i<=posicao; i++){
+            resultado += valores.at(i);
+            if(resultado >= 100){
+                return 100;
+            }
+        }
+
+        return resultado;
+    }
 };
