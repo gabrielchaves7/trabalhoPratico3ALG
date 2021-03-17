@@ -14,7 +14,7 @@ vector<Descontos> calcularRota(vector<Escala> vetorEscalas, Promocoes promocoes,
 
         vector<Escala> particao = particaoComEscalaMaisCara(vetorEscalas, qtdMaximaEscalasParaDesconto,tempoMaximoDesconto, posicaoEscalaMaisCara);
         Descontos melhorDesconto = acharMelhorDesconto(particao, promocoes, tempoMaximoDesconto);
-        melhorDesconto = continuarComMelhorDesconto(melhorDesconto, promocoes, tempoMaximoDesconto, vetorEscalas, particao.at(posicaoEscalaMaisCara).codigo, &particao);
+        melhorDesconto = continuarComMelhorDesconto(melhorDesconto, promocoes, tempoMaximoDesconto, vetorEscalas, particao.at(particao.size() - 1).codigo, &particao, qtdMaximaEscalasParaDesconto);
 
 
         vector<int> codigosEscalasParaRemover;
