@@ -25,7 +25,7 @@ Promocoes leEntradaDescontos()
     Promocoes promocoes = Promocoes();
     for (string s; iss >> s;)
     {
-        promocoes.adicionarDesconto(stoi(s));
+        promocoes.adicionarPromocao(stoi(s));
     }
 
     return promocoes;

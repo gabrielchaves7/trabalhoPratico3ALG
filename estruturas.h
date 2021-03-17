@@ -7,18 +7,11 @@ public:
     int tempo;
     int preco;
     int codigo;
-    int precoComDescontoAplicado;
-    int descontoAplicado;
     Escala(int tempo, int preco, int codigo)
     {
         this->tempo = tempo;
         this->preco = preco;
-        this->codigo = codigo;
-        this->precoComDescontoAplicado = 0;
-    }
-    void calcularPrecoComDesconto(int desconto){
-        this->precoComDescontoAplicado = ((this->preco * (100-desconto))/100);
-        this->descontoAplicado = desconto;
+        this->codigo = codigo;        
     }
 };
 
@@ -26,10 +19,10 @@ class Promocoes
 {
 public:
     vector<int> valores;
-    void adicionarDesconto(int desconto){
-        this->valores.push_back(desconto);
+    void adicionarPromocao(int promocao){
+        this->valores.push_back(promocao);
     }
-    int obterDescontoCumulativo(int posicao){
+    int obterPromocaoCumulativa(int posicao){
         int resultado = 0;
         for(int i =0; i<=posicao; i++){
             resultado += valores.at(i);
