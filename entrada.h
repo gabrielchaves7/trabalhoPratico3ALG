@@ -17,18 +17,18 @@ void leEntradaPrincipal(int &qtdEscalas, int &qtdMaximaEscalasParaDesconto, int 
     tempoMaximoDesconto = stoi(result.at(2));
 }
 
-Descontos leEntradaDescontos()
+Promocoes leEntradaDescontos()
 {
     string line;
     getline(cin, line);
     istringstream iss(line);
-    Descontos descontos = Descontos();
+    Promocoes promocoes = Promocoes();
     for (string s; iss >> s;)
     {
-        descontos.adicionarDesconto(stoi(s));
+        promocoes.adicionarDesconto(stoi(s));
     }
 
-    return descontos;
+    return promocoes;
 }
 
 vector<Escala> leEntradaEscalas(int quantidadeEscalas)

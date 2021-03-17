@@ -6,14 +6,21 @@ class Escala
 public:
     int tempo;
     int preco;
+    int precoComDescontoAplicado;
+    int descontoAplicado;
     Escala(int tempo, int preco)
     {
         this->tempo = tempo;
         this->preco = preco;
+        this->precoComDescontoAplicado = 0;
+    }
+    void calcularPrecoComDesconto(int desconto){
+        this->precoComDescontoAplicado = ((this->preco * (100-desconto))/100);
+        this->descontoAplicado = desconto;
     }
 };
 
-class Descontos
+class Promocoes
 {
 public:
     vector<int> valores;
@@ -30,5 +37,19 @@ public:
         }
 
         return resultado;
+    }
+};
+
+class Descontos
+{
+public:
+    vector<int> valores;
+    int posicaoDescontoAtual;
+    int tempoAcumulado;
+    int precoAcumulado;
+    Descontos(int posDesconto, int tempoAcumulado, int precoAcumulado){
+        this->posicaoDescontoAtual = posDesconto;
+        this->tempoAcumulado = tempoAcumulado;
+        this->precoAcumulado = precoAcumulado;
     }
 };

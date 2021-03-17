@@ -4,110 +4,122 @@
 #include "entrada.h"
 using namespace std;
 
-class Rota
-{
-public:
+int acharPosicaoEscalaMaisCara(vector<Escala> vetorEscalas){
+    Escala escalaMaisCara = vetorEscalas.at(0);
+    int posicaoEscalaMaisCara = 0;
+    for(int i=1; i<vetorEscalas.size(); i++){
+        Escala escalaAtual = vetorEscalas.at(i);
+        if(escalaMaisCara.preco < escalaAtual.preco){
+            escalaMaisCara = escalaAtual;
+            posicaoEscalaMaisCara = i;
+        }
+    }
+
+    return posicaoEscalaMaisCara;
+}
+
+vector<Escala> particaoComEscalaMaisCara(vector<Escala> vetorEscalas, int qtdMaximaEscalasParaDesconto, int tempoMaximoDesconto, int posicaoEscalaMaisCara){
+    vector<Escala> particaoComEscalaMaisCara;
     int tempoAcumulado = 0;
-    int descontoAtual = 0;
-    int posDesconto = 0;
-    int sequenciaAtual = 0;
-    double precoAcumulado = 0;
-    Rota(int tempoAcumulado, int posDesconto, int descontoAtual, int sequenciaAtual, double precoAcumulado){
-        this->tempoAcumulado += tempoAcumulado ;
-        this->descontoAtual += descontoAtual ;
-        this->sequenciaAtual += sequenciaAtual ;
-        this->precoAcumulado += precoAcumulado ; 
-        this->posDesconto = posDesconto;
-    };
-};
+    for(int i=posicaoEscalaMaisCara; i>=0; i--){
+        if(particaoComEscalaMaisCara.size() < qtdMaximaEscalasParaDesconto && tempoAcumulado < tempoMaximoDesconto){
+            particaoComEscalaMaisCara.push_back(vetorEscalas.at(i));
+            tempoAcumulado += vetorEscalas.at(i).tempo;
+        }
+    }
 
-Rota continuarComDescontoETempoAtual(Rota rotaAtual, Escala escalaAtual, Descontos descontos, int qtdMaximaEscalasParaDesconto, int tempoMaximoDesconto){
-    rotaAtual.sequenciaAtual++;
-    rotaAtual.posDesconto++;
+    return particaoComEscalaMaisCara;
+}
 
-    if(rotaAtual.sequenciaAtual > qtdMaximaEscalasParaDesconto || rotaAtual.tempoAcumulado >= tempoMaximoDesconto){
-        rotaAtual.posDesconto = 0;
-        rotaAtual.sequenciaAtual = 0;
-        rotaAtual.tempoAcumulado = 0;
+Descontos continuarComDesconto(Descontos descontosAtuais, Promocoes promocoes, int posicao, Escala escalaAtual, int tempoMaximo){
+    int porcentagemDesconto;
+    if(descontosAtuais.tempoAcumulado >= tempoMaximo){
+        descontosAtuais.tempoAcumulado = 0;
+        descontosAtuais.posicaoDescontoAtual = 0;
+        porcentagemDesconto = promocoes.obterDescontoCumulativo(descontosAtuais.posicaoDescontoAtual);
+        descontosAtuais.precoAcumulado = ((escalaAtual.preco * (100-porcentagemDesconto))/100);
+        descontosAtuais.valores.push_back(porcentagemDesconto);
     } else {
-        rotaAtual.tempoAcumulado+=escalaAtual.tempo;
+        descontosAtuais.tempoAcumulado += escalaAtual.tempo;
+        descontosAtuais.posicaoDescontoAtual = posicao + 1;
+        porcentagemDesconto = promocoes.obterDescontoCumulativo(descontosAtuais.posicaoDescontoAtual);
+        descontosAtuais.precoAcumulado = ((escalaAtual.preco * (100-porcentagemDesconto))/100);
+        descontosAtuais.valores.push_back(promocoes.obterDescontoCumulativo(descontosAtuais.posicaoDescontoAtual));
     }
-
-    rotaAtual.descontoAtual = descontos.obterDescontoCumulativo(rotaAtual.posDesconto);
-    rotaAtual.precoAcumulado+= ((escalaAtual.preco * (100 - rotaAtual.descontoAtual) ) / 100);
-
-    return rotaAtual;
-}
-
-Rota pararEResetarDescontoETempo(Rota rotaAtual, Escala escalaAtual, Descontos descontos){
-    rotaAtual.sequenciaAtual = 1;
-    rotaAtual.posDesconto = 0;
-    rotaAtual.descontoAtual = descontos.obterDescontoCumulativo(0);
-
-    rotaAtual.precoAcumulado += ((escalaAtual.preco * (100 - rotaAtual.descontoAtual) ) / 100);
-    rotaAtual.tempoAcumulado = escalaAtual.tempo;
-
-    return rotaAtual;
-}
-
-vector<Rota> acharMelhorOpcao(vector<Escala> vetorEscalas, Descontos descontos, int qtdMaximaEscalasParaDesconto, int tempoMaximoDesconto){
-    vector<Rota> rotas;
-    vector<Rota> rotasTemp;
-
-    Escala escalaInicial = vetorEscalas.at(0);
-    Rota rotaInicial = Rota(escalaInicial.tempo, 0, descontos.valores.at(0), 1, escalaInicial.preco);
     
-    Escala escalaAtual = vetorEscalas.at(1);
-    Rota rotaContinuar = continuarComDescontoETempoAtual(rotaInicial, escalaAtual, descontos, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto);
-    Rota rotaResetar = pararEResetarDescontoETempo(rotaInicial, escalaAtual, descontos);
+    return descontosAtuais;
+}
 
-    rotasTemp.push_back(rotaContinuar);
-    rotasTemp.push_back(rotaResetar);
+Descontos pararComDesconto(Descontos descontosAtuais, Promocoes promocoes, Escala escalaAtual){
+    descontosAtuais.valores.push_back(0);
+    descontosAtuais.posicaoDescontoAtual = 0;
+    descontosAtuais.tempoAcumulado = 0;
+    int porcentagemDesconto = promocoes.obterDescontoCumulativo(descontosAtuais.posicaoDescontoAtual);
+    descontosAtuais.precoAcumulado = ((escalaAtual.preco * (100-porcentagemDesconto))/100);
+    return descontosAtuais;
+}
 
-    for(int j = 2; j<vetorEscalas.size(); j ++){
-        rotas.clear();
+vector<Descontos> obterDescontosPossiveis(vector<Escala> particao, Promocoes promocoes, int tempoMaximo){
+    Escala escalaInicial = particao.at(particao.size() - 1);
+    Descontos descontos(0, escalaInicial.tempo, escalaInicial.preco);
+    descontos.valores.push_back(promocoes.valores.at(0));
 
-        Escala escalaAtual = vetorEscalas.at(j);
-        for(int i =0 ; i<rotasTemp.size(); i++){
-            Rota rotaAtual = rotasTemp.at(i);
-            Rota rotaContinuar = continuarComDescontoETempoAtual(rotaAtual, escalaAtual, descontos, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto);
-            Rota rotaResetar = pararEResetarDescontoETempo(rotaAtual, escalaAtual, descontos);
-            rotas.push_back(rotaContinuar);
-            rotas.push_back(rotaResetar);
+    vector<Descontos> opcoesDescontos;
+    vector<Descontos> opcoesDescontosTemp;
+    opcoesDescontosTemp.push_back(descontos);
+
+
+    for(int i = (particao.size() - 2); i>=0; i --){
+        opcoesDescontos.clear();
+
+        for(int j = 0; j<opcoesDescontosTemp.size(); j ++){
+            Descontos descontos = opcoesDescontosTemp.at(j);
+            Descontos continuar = continuarComDesconto(descontos, promocoes, descontos.posicaoDescontoAtual, particao.at(i), tempoMaximo);
+            Descontos parar = pararComDesconto(descontos,promocoes, particao.at(i));
+            opcoesDescontos.push_back(continuar);
+            opcoesDescontos.push_back(parar);
         }
 
-        rotasTemp.clear();
+        opcoesDescontosTemp.clear();
 
-        for(int i = 0; i<rotas.size(); i++){
-            rotasTemp.push_back(rotas.at(i));
+        for(int i = 0; i<opcoesDescontos.size(); i++){
+            opcoesDescontosTemp.push_back(opcoesDescontos.at(i));
         }
     }
 
+    return opcoesDescontos;
+}
 
+Descontos acharMelhorDesconto(vector<Escala> particao, Promocoes promocoes, int tempoMaximo){
+    vector<Descontos> opcoesDescontos = obterDescontosPossiveis(particao, promocoes, tempoMaximo);
 
-    return rotas;
+    Descontos melhorDesconto = opcoesDescontos.at(0);
+    for(int i=1 ; i<opcoesDescontos.size(); i ++){
+        if(melhorDesconto.precoAcumulado > opcoesDescontos.at(i).precoAcumulado){
+            melhorDesconto = opcoesDescontos.at(i);
+        }
+    }
+
+    
+    return melhorDesconto;
 }
 
 int main()
 {
     int qtdEscalas, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto;
-    Descontos descontos;
+    Promocoes promocoes;
     vector<Escala> vetorEscalas;
     leEntradaPrincipal(qtdEscalas, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto);
-    descontos = leEntradaDescontos();
+    promocoes = leEntradaDescontos();
     vetorEscalas = leEntradaEscalas(qtdEscalas);
-    vector<Rota> rotas = acharMelhorOpcao(vetorEscalas, descontos, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto);
-    
-    int menorPreco = rotas.at(0).precoAcumulado;
-    Rota rotaComMenorPreco = rotas.at(0);
-    for(int i =1; i< rotas.size(); i++){
-        if(rotas.at(i).precoAcumulado < menorPreco){
-            menorPreco = rotas.at(i).precoAcumulado;
-            rotaComMenorPreco = rotas.at(i);
-        }
-            
-    }
 
+    int posicaoEscalaMaisCara = acharPosicaoEscalaMaisCara(vetorEscalas);
+    Escala escalaMaisCara = vetorEscalas.at(posicaoEscalaMaisCara);
 
+    vector<Escala> resultadoUm = particaoComEscalaMaisCara(vetorEscalas, qtdMaximaEscalasParaDesconto,tempoMaximoDesconto, posicaoEscalaMaisCara);
+    Descontos melhorDesconto = acharMelhorDesconto(resultadoUm, promocoes, tempoMaximoDesconto);
+    int menorPreco = 0;
+    cout << "--------------- \n";
+    cout << menorPreco; 
     return 0;
 }
