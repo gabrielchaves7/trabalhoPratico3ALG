@@ -37,14 +37,14 @@ Descontos continuarComDesconto(Descontos descontosAtuais, Promocoes promocoes, i
         descontosAtuais.tempoAcumulado = 0;
         descontosAtuais.posicaoDescontoAtual = 0;
         porcentagemDesconto = promocoes.obterDescontoCumulativo(descontosAtuais.posicaoDescontoAtual);
-        descontosAtuais.precoAcumulado = ((escalaAtual.preco * (100-porcentagemDesconto))/100);
+        descontosAtuais.precoAcumulado += ((escalaAtual.preco * (100-porcentagemDesconto))/100);
         descontosAtuais.valores.push_back(porcentagemDesconto);
     } else {
         descontosAtuais.tempoAcumulado += escalaAtual.tempo;
         descontosAtuais.posicaoDescontoAtual = posicao + 1;
         porcentagemDesconto = promocoes.obterDescontoCumulativo(descontosAtuais.posicaoDescontoAtual);
-        descontosAtuais.precoAcumulado = ((escalaAtual.preco * (100-porcentagemDesconto))/100);
-        descontosAtuais.valores.push_back(promocoes.obterDescontoCumulativo(descontosAtuais.posicaoDescontoAtual));
+        descontosAtuais.precoAcumulado += ((escalaAtual.preco * (100-porcentagemDesconto))/100);
+        descontosAtuais.valores.push_back(porcentagemDesconto);
     }
     
     return descontosAtuais;
@@ -55,7 +55,7 @@ Descontos pararComDesconto(Descontos descontosAtuais, Promocoes promocoes, Escal
     descontosAtuais.posicaoDescontoAtual = 0;
     descontosAtuais.tempoAcumulado = 0;
     int porcentagemDesconto = promocoes.obterDescontoCumulativo(descontosAtuais.posicaoDescontoAtual);
-    descontosAtuais.precoAcumulado = ((escalaAtual.preco * (100-porcentagemDesconto))/100);
+    descontosAtuais.precoAcumulado += ((escalaAtual.preco * (100-porcentagemDesconto))/100);
     return descontosAtuais;
 }
 
@@ -104,6 +104,26 @@ Descontos acharMelhorDesconto(vector<Escala> particao, Promocoes promocoes, int 
     return melhorDesconto;
 }
 
+Descontos continuarComMelhorDesconto(Descontos melhorDesconto, Promocoes promocoes, int tempoMaximo, vector<Escala> escalas, int codigoEscalaInicial){
+
+    int posicaoEscalaAtual = codigoEscalaInicial + 1;
+    Escala escalaAtual = escalas.at(posicaoEscalaAtual);
+
+    for(int i = melhorDesconto.posicaoDescontoAtual;i<promocoes.valores.size(); i ++){
+        if(melhorDesconto.tempoAcumulado < tempoMaximo){
+            melhorDesconto.tempoAcumulado += escalaAtual.tempo;
+            melhorDesconto.posicaoDescontoAtual = melhorDesconto.posicaoDescontoAtual + 1;
+            int porcentagemDesconto = promocoes.obterDescontoCumulativo(melhorDesconto.posicaoDescontoAtual);
+            melhorDesconto.precoAcumulado += ((escalaAtual.preco * (100-porcentagemDesconto))/100);
+            melhorDesconto.valores.push_back(porcentagemDesconto);
+            posicaoEscalaAtual +=1;
+            escalaAtual = escalas.at(posicaoEscalaAtual);
+        }
+    }
+
+    return melhorDesconto;
+}
+
 int main()
 {
     int qtdEscalas, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto;
@@ -116,8 +136,9 @@ int main()
     int posicaoEscalaMaisCara = acharPosicaoEscalaMaisCara(vetorEscalas);
     Escala escalaMaisCara = vetorEscalas.at(posicaoEscalaMaisCara);
 
-    vector<Escala> resultadoUm = particaoComEscalaMaisCara(vetorEscalas, qtdMaximaEscalasParaDesconto,tempoMaximoDesconto, posicaoEscalaMaisCara);
-    Descontos melhorDesconto = acharMelhorDesconto(resultadoUm, promocoes, tempoMaximoDesconto);
+    vector<Escala> particao = particaoComEscalaMaisCara(vetorEscalas, qtdMaximaEscalasParaDesconto,tempoMaximoDesconto, posicaoEscalaMaisCara);
+    Descontos melhorDesconto = acharMelhorDesconto(particao, promocoes, tempoMaximoDesconto);
+    melhorDesconto = continuarComMelhorDesconto(melhorDesconto, promocoes, tempoMaximoDesconto, vetorEscalas, particao.at(0).codigo);
     int menorPreco = 0;
     cout << "--------------- \n";
     cout << menorPreco; 

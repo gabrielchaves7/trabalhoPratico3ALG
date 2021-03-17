@@ -50,7 +50,7 @@ vector<Escala> leEntradaEscalas(int quantidadeEscalas)
         int tempo = stoi(temp.at(0));
         int preco = stoi(temp.at(1));
 
-        Escala escalaAtual = Escala(tempo, preco);
+        Escala escalaAtual = Escala(tempo, preco, i);
         vetorEscala.push_back(escalaAtual);
     }
 

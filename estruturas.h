@@ -6,12 +6,14 @@ class Escala
 public:
     int tempo;
     int preco;
+    int codigo;
     int precoComDescontoAplicado;
     int descontoAplicado;
-    Escala(int tempo, int preco)
+    Escala(int tempo, int preco, int codigo)
     {
         this->tempo = tempo;
         this->preco = preco;
+        this->codigo = codigo;
         this->precoComDescontoAplicado = 0;
     }
     void calcularPrecoComDesconto(int desconto){
