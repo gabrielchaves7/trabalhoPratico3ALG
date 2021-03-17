@@ -15,12 +15,15 @@ int acharPosicaoEscalaMaisCara(vector<Escala> vetorEscalas){
 vector<Escala> particaoComEscalaMaisCara(vector<Escala> vetorEscalas, int qtdMaximaEscalasParaDesconto, int tempoMaximoDesconto, int posicaoEscalaMaisCara){
     vector<Escala> particaoComEscalaMaisCara;
     int tempoAcumulado = 0;
-    for(int i=posicaoEscalaMaisCara; i>=0; i--){
+    for(int i=0; i<posicaoEscalaMaisCara; i++){
         if(particaoComEscalaMaisCara.size() < qtdMaximaEscalasParaDesconto && tempoAcumulado < tempoMaximoDesconto){
             particaoComEscalaMaisCara.push_back(vetorEscalas.at(i));
             tempoAcumulado += vetorEscalas.at(i).tempo;
+        } else {
+            particaoComEscalaMaisCara.clear();
+            tempoAcumulado = 0;
         }
     }
-
+    particaoComEscalaMaisCara.push_back(vetorEscalas.at(posicaoEscalaMaisCara));
     return particaoComEscalaMaisCara;
 }

@@ -27,7 +27,7 @@ Descontos pararComDesconto(Descontos descontosAtuais, Promocoes promocoes, Escal
 }
 
 vector<Descontos> obterDescontosPossiveis(vector<Escala> particao, Promocoes promocoes, int tempoMaximo){
-    Escala escalaInicial = particao.at(particao.size() - 1);
+    Escala escalaInicial = particao.at(0);
     Descontos descontos(0, escalaInicial.tempo, escalaInicial.preco);
     descontos.valores.push_back(promocoes.valores.at(0));
 
@@ -36,7 +36,7 @@ vector<Descontos> obterDescontosPossiveis(vector<Escala> particao, Promocoes pro
     opcoesDescontosTemp.push_back(descontos);
 
 
-    for(int i = (particao.size() - 2); i>=0; i --){
+    for(int i = 1; i<particao.size(); i ++){
         opcoesDescontos.clear();
 
         for(int j = 0; j<opcoesDescontosTemp.size(); j ++){
