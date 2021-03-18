@@ -72,26 +72,29 @@ Descontos acharMelhorDesconto(vector<Escala> particao, Promocoes promocoes, int 
     return melhorDesconto;
 }
 
-Descontos continuarComMelhorDesconto(Descontos melhorDesconto, Promocoes promocoes, int tempoMaximo, vector<Escala> escalas, int codigoEscalaInicial, vector<Escala>* particao, int qtdMaximaEscalasParaDesconto){
+Descontos continuarComMelhorDesconto(Descontos melhorDesconto, Promocoes promocoes, int tempoMaximo, vector<Escala>* escalas, int codigoEscalaInicial, vector<Escala>* particao, int qtdMaximaEscalasParaDesconto){
 
     int posicaoEscalaAtual = codigoEscalaInicial + 1;
-    if(escalas.size() > posicaoEscalaAtual){
-        Escala escalaAtual = escalas.at(posicaoEscalaAtual);
-
-        for(int i = melhorDesconto.posicaoDescontoAtual;i<promocoes.valores.size(); i ++){
-            if(melhorDesconto.tempoAcumulado < tempoMaximo && melhorDesconto.valores.size() < qtdMaximaEscalasParaDesconto && posicaoEscalaAtual < (escalas.size() - 1)){
-                particao->push_back(escalaAtual);
-                melhorDesconto.tempoAcumulado += escalaAtual.tempo;
-                melhorDesconto.posicaoDescontoAtual = melhorDesconto.posicaoDescontoAtual + 1;
-                int porcentagemDesconto = promocoes.obterPromocaoCumulativa(melhorDesconto.posicaoDescontoAtual);
-                melhorDesconto.precoAcumulado += ((escalaAtual.preco * (100-porcentagemDesconto))/100);
-                melhorDesconto.valores.push_back(porcentagemDesconto);
-                posicaoEscalaAtual +=1;
-                escalaAtual = escalas.at(posicaoEscalaAtual);
+    if(escalas->size() > posicaoEscalaAtual){
+        Escala* escalaAtual = &escalas->at(posicaoEscalaAtual);
+        if(escalaAtual->utilizada == false){
+            for(int i = melhorDesconto.posicaoDescontoAtual;i<promocoes.valores.size(); i ++){
+                if(melhorDesconto.tempoAcumulado < tempoMaximo && melhorDesconto.valores.size() < qtdMaximaEscalasParaDesconto && posicaoEscalaAtual <= (escalas->size() - 1)){
+                    particao->push_back(*escalaAtual);
+                    melhorDesconto.tempoAcumulado += escalaAtual->tempo;
+                    melhorDesconto.posicaoDescontoAtual = melhorDesconto.posicaoDescontoAtual + 1;
+                    int porcentagemDesconto = promocoes.obterPromocaoCumulativa(melhorDesconto.posicaoDescontoAtual);
+                    melhorDesconto.precoAcumulado += ((escalaAtual->preco * (100-porcentagemDesconto))/100);
+                    melhorDesconto.valores.push_back(porcentagemDesconto);
+                    
+                    escalaAtual->utilizada = true;
+                    posicaoEscalaAtual +=1;
+                    if(posicaoEscalaAtual <= (escalas->size() - 1))
+                        escalaAtual = &escalas->at(posicaoEscalaAtual);
+                }
             }
         }
     }
-
 
     return melhorDesconto;
 }

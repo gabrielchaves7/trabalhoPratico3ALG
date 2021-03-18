@@ -10,6 +10,11 @@
         "unordered_map": "cpp",
         "iostream": "cpp",
         "__node_handle": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "__hash_table": "cpp",
+        "bitset": "cpp",
+        "initializer_list": "cpp",
+        "iterator": "cpp",
+        "utility": "cpp"
     }
 }

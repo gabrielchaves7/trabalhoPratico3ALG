@@ -8,35 +8,24 @@ using namespace std;
 
 vector<Descontos> calcularRota(vector<Escala> vetorEscalas, Promocoes promocoes, int qtdMaximaEscalasParaDesconto, int tempoMaximoDesconto){
     vector<Descontos> resultado;
+    bool todasEscalasUtilizadas = false;
     do{
         int posicaoEscalaMaisCara = acharPosicaoEscalaMaisCara(vetorEscalas);
         Escala escalaMaisCara = vetorEscalas.at(posicaoEscalaMaisCara);
 
-        vector<Escala> particao = particaoComEscalaMaisCara(vetorEscalas, qtdMaximaEscalasParaDesconto,tempoMaximoDesconto, posicaoEscalaMaisCara);
+        vector<Escala> particao = particaoComEscalaMaisCara(&vetorEscalas, qtdMaximaEscalasParaDesconto,tempoMaximoDesconto, posicaoEscalaMaisCara);
         Descontos melhorDesconto = acharMelhorDesconto(particao, promocoes, tempoMaximoDesconto);
-        melhorDesconto = continuarComMelhorDesconto(melhorDesconto, promocoes, tempoMaximoDesconto, vetorEscalas, particao.at(particao.size() - 1).codigo, &particao, qtdMaximaEscalasParaDesconto);
+        melhorDesconto = continuarComMelhorDesconto(melhorDesconto, promocoes, tempoMaximoDesconto, &vetorEscalas, particao.at(particao.size() - 1).codigo, &particao, qtdMaximaEscalasParaDesconto);
 
-
-        vector<int> codigosEscalasParaRemover;
-        for(int i =0; i<particao.size(); i++){
-            codigosEscalasParaRemover.push_back(particao.at(i).codigo);   
-        }
-
-        vector<Escala> novoVetorEscalas;
-        for(int i =0; i<vetorEscalas.size(); i++){
-            Escala escalaAtual = vetorEscalas.at(i);
-            if(! (find(codigosEscalasParaRemover.begin(), codigosEscalasParaRemover.end(), escalaAtual.codigo) != codigosEscalasParaRemover.end())){
-                novoVetorEscalas.push_back(escalaAtual);
+        todasEscalasUtilizadas = true;
+        for(int i = 0; i<vetorEscalas.size(); i++){
+            if(vetorEscalas.at(i).utilizada == false){
+                todasEscalasUtilizadas = false;
             }
-        }
 
-        for(int i =0; i<novoVetorEscalas.size(); i ++){
-            novoVetorEscalas.at(i).codigo = i;
         }
-        vetorEscalas.clear();
-        vetorEscalas = novoVetorEscalas;
         resultado.push_back(melhorDesconto);
-    } while(vetorEscalas.size() > 0);
+    } while(todasEscalasUtilizadas != true);
 
     return resultado;
 }
@@ -49,9 +38,13 @@ int main()
     leEntradaPrincipal(qtdEscalas, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto);
     promocoes = leEntradaDescontos();
     vetorEscalas = leEntradaEscalas(qtdEscalas);
-    calcularRota(vetorEscalas, promocoes, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto);
-    int menorPreco = 0;
+    vector<Descontos> resultado = calcularRota(vetorEscalas, promocoes, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto);
+
+    int total = 0;
+    for(int i = 0; i<resultado.size(); i ++){
+        total+=resultado.at(i).precoAcumulado;
+    }
     cout << "--------------- \n";
-    cout << menorPreco; 
+    cout << total; 
     return 0;
 }

@@ -5,13 +5,15 @@ class Escala
 {
 public:
     int tempo;
-    int preco;
+    double preco;
     int codigo;
-    Escala(int tempo, int preco, int codigo)
+    bool utilizada;
+    Escala(int tempo, double preco, int codigo)
     {
         this->tempo = tempo;
         this->preco = preco;
-        this->codigo = codigo;        
+        this->codigo = codigo;
+        this->utilizada = false;      
     }
 };
 
@@ -41,8 +43,8 @@ public:
     vector<int> valores;
     int posicaoDescontoAtual;
     int tempoAcumulado;
-    int precoAcumulado;
-    Descontos(int posDesconto, int tempoAcumulado, int precoAcumulado){
+    double precoAcumulado;
+    Descontos(int posDesconto, int tempoAcumulado, double precoAcumulado){
         this->posicaoDescontoAtual = posDesconto;
         this->tempoAcumulado = tempoAcumulado;
         this->precoAcumulado = precoAcumulado;
