@@ -1,9 +1,8 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include "estruturas.h"
 #include "entrada.h"
-#include "particao.h"
-#include "descontos.h"
 using namespace std;
 
 int obterDescontoAcumulado(int descontos[], int posDesconto){
@@ -23,16 +22,24 @@ double knapSack(int limiteTempo, int limiteSequencia, int tempos[], double preco
 
     if(tempoAcumulado < limiteTempo && posDesconto < limiteSequencia ){
         int descontoAcumulado = obterDescontoAcumulado(descontos, posDesconto);
-        int preco = ((precos[n] * (100 - descontoAcumulado) ) / 100);
+        double preco = ((precos[n] * (100 - descontoAcumulado) ) / 100);
         precoAcumulado += preco;
         escalas->at(n).preco = preco;
+        escalas->at(n).posDescontoRecebido = posDesconto;
+
+        escalas->at(n).tempoAcumulado = tempoAcumulado;
         tempoAcumulado += tempos[n];
+        
     } else {
         posDesconto = 0;
-        int preco = ((precos[n] * (100 - descontos[posDesconto]) ) / 100);
+        double preco = ((precos[n] * (100 - descontos[posDesconto]) ) / 100);
         precoAcumulado += preco;
         escalas->at(n).preco = preco;
+        escalas->at(n).posDescontoRecebido = posDesconto;
+
+        escalas->at(n).tempoAcumulado = tempoAcumulado;
         tempoAcumulado = tempos[n];
+        
     }
     
     return knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, n + 1, qtdEscalas, tempoAcumulado, precoAcumulado, posDesconto + 1, escalas);
@@ -62,12 +69,19 @@ int main()
     }
 
     double melhorPreco = 0;
-    int posicaoDescontoContinua = 0;
     vector<Escala> resultado;
 
 
     for(int i =0; i <vetorEscalas.size(); i ++){
-        double continuarComDesconto = knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, i, qtdEscalas, 0, 0, posicaoDescontoContinua, &vetorEscalas);
+        int posicaoDesconto = 0;
+        int tempoAcumulado = 0;
+        if(i != 0){
+            Escala escalaAtual = vetorEscalas.at(i);
+            posicaoDesconto = escalaAtual.posDescontoRecebido;
+            tempoAcumulado = escalaAtual.tempoAcumulado;
+        }
+        
+        double continuarComDesconto = knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, i, qtdEscalas, tempoAcumulado, 0, posicaoDesconto, &vetorEscalas);
         double novoPrecoContinuarComDesconto = 0;
         for(int i =0; i<qtdEscalas; i ++){            
             Escala escalaAtual = vetorEscalas.at(i);
@@ -75,13 +89,11 @@ int main()
         }
 
         double novoPrecoResetarDesconto = 0;
-        double resetarDesconto = knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, i, qtdEscalas, limiteSequencia, 0, 0, &vetorEscalas);
+        double resetarDesconto = knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, i, qtdEscalas, 0, 0, 0, &vetorEscalas);
         for(int i =0; i<qtdEscalas; i ++){            
             Escala escalaAtual = vetorEscalas.at(i);
             novoPrecoResetarDesconto += escalaAtual.preco;
         }
-
-
 
         if(novoPrecoContinuarComDesconto < melhorPreco || novoPrecoResetarDesconto < melhorPreco || melhorPreco == 0){
             if(novoPrecoContinuarComDesconto < novoPrecoResetarDesconto){

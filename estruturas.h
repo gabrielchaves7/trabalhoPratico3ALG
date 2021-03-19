@@ -7,13 +7,13 @@ public:
     int tempo;
     double preco;
     int codigo;
-    bool utilizada;
+    int posDescontoRecebido;
+    int tempoAcumulado;
     Escala(int tempo, double preco, int codigo)
     {
         this->tempo = tempo;
         this->preco = preco;
-        this->codigo = codigo;
-        this->utilizada = false;      
+        this->codigo = codigo;   
     }
 };
 
