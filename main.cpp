@@ -6,45 +6,76 @@
 #include "descontos.h"
 using namespace std;
 
-vector<Descontos> calcularRota(vector<Escala> vetorEscalas, Promocoes promocoes, int qtdMaximaEscalasParaDesconto, int tempoMaximoDesconto){
-    vector<Descontos> resultado;
-    bool todasEscalasUtilizadas = false;
-    do{
-        int posicaoEscalaMaisCara = acharPosicaoEscalaMaisCara(vetorEscalas);
-        Escala escalaMaisCara = vetorEscalas.at(posicaoEscalaMaisCara);
+int obterDescontoAcumulado(int descontos[], int posDesconto){
+    int descontoAcumulado = 0;
+    for(int i =0; i <=posDesconto; i ++){
+        descontoAcumulado += descontos[i];
+    }
 
-        vector<Escala> particao = particaoComEscalaMaisCara(&vetorEscalas, qtdMaximaEscalasParaDesconto,tempoMaximoDesconto, posicaoEscalaMaisCara);
-        Descontos melhorDesconto = acharMelhorDesconto(particao, promocoes, tempoMaximoDesconto);
-        melhorDesconto = continuarComMelhorDesconto(melhorDesconto, promocoes, tempoMaximoDesconto, &vetorEscalas, particao.at(particao.size() - 1).codigo, &particao, qtdMaximaEscalasParaDesconto);
-
-        todasEscalasUtilizadas = true;
-        for(int i = 0; i<vetorEscalas.size(); i++){
-            if(vetorEscalas.at(i).utilizada == false){
-                todasEscalasUtilizadas = false;
-            }
-
-        }
-        resultado.push_back(melhorDesconto);
-    } while(todasEscalasUtilizadas != true);
-
-    return resultado;
+    return descontoAcumulado;
 }
+
+double knapSack(int limiteTempo, int limiteSequencia, int tempos[], double precos[], int descontos[], int n, int qtdEscalas, int tempoAcumulado, double precoAcumulado, int *posDesconto)
+{
+    if (n == qtdEscalas){
+        return precoAcumulado;
+    }
+
+    if(tempoAcumulado < limiteTempo && *posDesconto < limiteSequencia ){
+        int descontoAcumulado = obterDescontoAcumulado(descontos, *posDesconto);
+        precoAcumulado += ((precos[n] * (100 - descontoAcumulado) ) / 100);
+        tempoAcumulado += tempos[n];
+    } else {
+        *posDesconto = 0;
+        precoAcumulado += ((precos[n] * (100 - descontos[*posDesconto]) ) / 100);
+        tempoAcumulado = tempos[n];
+    }
+    
+
+    return knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, n + 1, qtdEscalas, tempoAcumulado, precoAcumulado, posDesconto + 1);
+}
+
 
 int main()
 {
-    int qtdEscalas, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto;
+    int qtdEscalas, limiteSequencia, limiteTempo;
     Promocoes promocoes;
     vector<Escala> vetorEscalas;
-    leEntradaPrincipal(qtdEscalas, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto);
+    leEntradaPrincipal(qtdEscalas, limiteSequencia, limiteTempo);
     promocoes = leEntradaDescontos();
     vetorEscalas = leEntradaEscalas(qtdEscalas);
-    vector<Descontos> resultado = calcularRota(vetorEscalas, promocoes, qtdMaximaEscalasParaDesconto, tempoMaximoDesconto);
 
-    int total = 0;
-    for(int i = 0; i<resultado.size(); i ++){
-        total+=resultado.at(i).precoAcumulado;
+
+    double precos[qtdEscalas];
+    int tempos[qtdEscalas];
+    int descontos[promocoes.valores.size()];
+    for(int i =0; i <vetorEscalas.size(); i++){
+        precos[i] = vetorEscalas.at(i).preco;
+        tempos[i] = vetorEscalas.at(i).tempo;
     }
+
+    for(int i =0; i<promocoes.valores.size(); i++){
+        descontos[i] = promocoes.valores.at(i);
+    }
+
+    double melhorPreco = 0;
+    int posicaoDesconto = 0;
+    for(int i =0; i <vetorEscalas.size(); i ++){
+        double continuarComDesconto = knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, i, qtdEscalas, 0, 0, &posicaoDesconto);
+        double resetarDesconto = knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, i, qtdEscalas, limiteSequencia, 0, &posicaoDesconto);
+
+        if(continuarComDesconto < melhorPreco || resetarDesconto < melhorPreco || melhorPreco == 0){
+            if(continuarComDesconto < resetarDesconto){
+                melhorPreco = continuarComDesconto;
+            } else {
+                melhorPreco = resetarDesconto;
+            }
+        }
+        
+    }
+
     cout << "--------------- \n";
-    cout << total; 
+    cout << melhorPreco;
+    cout << "--------------- \n";
     return 0;
 }
