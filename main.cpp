@@ -14,37 +14,60 @@ int obterDescontoAcumulado(int descontos[], int posDesconto){
     return descontoAcumulado;
 }
 
-double knapSack(int limiteTempo, int limiteSequencia, int tempos[], double precos[], int descontos[], int n, int qtdEscalas, int tempoAcumulado, double precoAcumulado, int posDesconto, vector<Escala>* escalas)
-{
-    if (n == qtdEscalas){
-        return precoAcumulado;
-    }
-
-    if(tempoAcumulado < limiteTempo && posDesconto < limiteSequencia ){
-        int descontoAcumulado = obterDescontoAcumulado(descontos, posDesconto);
-        double preco = ((precos[n] * (100 - descontoAcumulado) ) / 100);
-        precoAcumulado += preco;
-        escalas->at(n).preco = preco;
-        escalas->at(n).posDescontoRecebido = posDesconto;
-
-        escalas->at(n).tempoAcumulado = tempoAcumulado;
-        tempoAcumulado += tempos[n];
-        
-    } else {
-        posDesconto = 0;
-        double preco = ((precos[n] * (100 - descontos[posDesconto]) ) / 100);
-        precoAcumulado += preco;
-        escalas->at(n).preco = preco;
-        escalas->at(n).posDescontoRecebido = posDesconto;
-
-        escalas->at(n).tempoAcumulado = tempoAcumulado;
-        tempoAcumulado = tempos[n];
-        
-    }
-    
-    return knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, n + 1, qtdEscalas, tempoAcumulado, precoAcumulado, posDesconto + 1, escalas);
+double calcularDesconto(double preco, int desconto){
+    return ((preco * (100 - desconto))/100);
 }
 
+
+Desconto acharMenorPrecoLinha(vector<Desconto> descontos){
+    Desconto melhorDesconto = descontos.at(0);
+    for(int i =1; i<descontos.size(); i ++){    
+        Desconto descontoAtual = descontos.at(i);
+        if(descontoAtual.precoAcumulado < melhorDesconto.precoAcumulado){
+            melhorDesconto = descontoAtual;
+        }
+    }
+
+    return melhorDesconto;
+}
+
+vector<vector<Desconto> > knapSack(int qtdEscalas, int limiteTempo, int qtdMaximaSequencia, int descontos[], vector<vector<Desconto> > matriz, vector<Escala> escalas)
+{   
+    int limiteSequencia = 2;
+    for(int linhaAtual = 1; linhaAtual < qtdEscalas; linhaAtual ++){
+        Escala escalaAtual = escalas.at(linhaAtual);
+        for(int colunaAtual = 0; colunaAtual<limiteSequencia; colunaAtual++){
+            Desconto melhorDescontoAnterior;
+            int porcentagemDesconto;
+            if(colunaAtual == 0){
+                porcentagemDesconto = obterDescontoAcumulado(descontos, colunaAtual);
+                melhorDescontoAnterior = acharMenorPrecoLinha(matriz.at(linhaAtual - 1));
+                melhorDescontoAnterior.precoAcumulado += calcularDesconto(escalaAtual.preco, porcentagemDesconto);
+                melhorDescontoAnterior.tempoAcumulado = 0;
+                
+            } else {
+                melhorDescontoAnterior = matriz.at(linhaAtual - 1).at(colunaAtual - 1);
+                if(melhorDescontoAnterior.tempoAcumulado >= limiteTempo ){
+                    porcentagemDesconto = obterDescontoAcumulado(descontos, 0);
+                } else {
+                    porcentagemDesconto = obterDescontoAcumulado(descontos, colunaAtual);
+                }
+
+                melhorDescontoAnterior.precoAcumulado += calcularDesconto(escalaAtual.preco, porcentagemDesconto);
+            }
+
+                melhorDescontoAnterior.tempoAcumulado += escalaAtual.tempo;
+                matriz.at(linhaAtual).push_back(melhorDescontoAnterior);
+        }
+
+        if(limiteSequencia < qtdMaximaSequencia){
+            limiteSequencia = limiteSequencia + 1;
+        }
+        
+    }
+
+    return matriz;
+}
 
 int main()
 {
@@ -54,59 +77,27 @@ int main()
     leEntradaPrincipal(qtdEscalas, limiteSequencia, limiteTempo);
     promocoes = leEntradaDescontos();
     vetorEscalas = leEntradaEscalas(qtdEscalas);
-
-
-    double precos[qtdEscalas];
-    int tempos[qtdEscalas];
     int descontos[promocoes.valores.size()];
-    for(int i =0; i <vetorEscalas.size(); i++){
-        precos[i] = vetorEscalas.at(i).preco;
-        tempos[i] = vetorEscalas.at(i).tempo;
-    }
-
-    for(int i =0; i<promocoes.valores.size(); i++){
+    for(int i =0; i <promocoes.valores.size(); i++){
         descontos[i] = promocoes.valores.at(i);
     }
 
-    double melhorPreco = 0;
-    vector<Escala> resultado;
 
-
-    for(int i =0; i <vetorEscalas.size(); i ++){
-        int posicaoDesconto = 0;
-        int tempoAcumulado = 0;
-        if(i != 0){
-            Escala escalaAtual = vetorEscalas.at(i);
-            posicaoDesconto = escalaAtual.posDescontoRecebido;
-            tempoAcumulado = escalaAtual.tempoAcumulado;
-        }
-        
-        double continuarComDesconto = knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, i, qtdEscalas, tempoAcumulado, 0, posicaoDesconto, &vetorEscalas);
-        double novoPrecoContinuarComDesconto = 0;
-        for(int i =0; i<qtdEscalas; i ++){            
-            Escala escalaAtual = vetorEscalas.at(i);
-            novoPrecoContinuarComDesconto += escalaAtual.preco;
-        }
-
-        double novoPrecoResetarDesconto = 0;
-        double resetarDesconto = knapSack(limiteTempo, limiteSequencia, tempos, precos, descontos, i, qtdEscalas, 0, 0, 0, &vetorEscalas);
-        for(int i =0; i<qtdEscalas; i ++){            
-            Escala escalaAtual = vetorEscalas.at(i);
-            novoPrecoResetarDesconto += escalaAtual.preco;
-        }
-
-        if(novoPrecoContinuarComDesconto < melhorPreco || novoPrecoResetarDesconto < melhorPreco || melhorPreco == 0){
-            if(novoPrecoContinuarComDesconto < novoPrecoResetarDesconto){
-                melhorPreco = novoPrecoResetarDesconto;
-            } else {
-                melhorPreco = novoPrecoResetarDesconto;
-            }
-        }
-        
+    vector<vector<Desconto> > matriz;
+    for(int i =0; i<qtdEscalas; i ++){
+        vector<Desconto> vetorInicial;
+        matriz.push_back(vetorInicial);
     }
 
+    
+
+    Escala escalaInicial = vetorEscalas.at(0);
+    Desconto desconto = Desconto(escalaInicial.tempo, calcularDesconto(escalaInicial.preco, descontos[0]));
+    matriz.at(0).push_back(desconto);
+
+    matriz = knapSack(qtdEscalas, limiteTempo, limiteSequencia, descontos, matriz, vetorEscalas);
+
     cout << "--------------- \n";
-    cout << melhorPreco;
     cout << "--------------- \n";
     return 0;
 }

@@ -7,8 +7,6 @@ public:
     int tempo;
     double preco;
     int codigo;
-    int posDescontoRecebido;
-    int tempoAcumulado;
     Escala(int tempo, double preco, int codigo)
     {
         this->tempo = tempo;
@@ -37,15 +35,13 @@ public:
     }
 };
 
-class Descontos
+class Desconto
 {
 public:
-    vector<int> valores;
-    int posicaoDescontoAtual;
     int tempoAcumulado;
     double precoAcumulado;
-    Descontos(int posDesconto, int tempoAcumulado, double precoAcumulado){
-        this->posicaoDescontoAtual = posDesconto;
+    Desconto(){};
+    Desconto(int tempoAcumulado, double precoAcumulado){
         this->tempoAcumulado = tempoAcumulado;
         this->precoAcumulado = precoAcumulado;
     }
