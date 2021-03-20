@@ -15,6 +15,7 @@
         "bitset": "cpp",
         "initializer_list": "cpp",
         "iterator": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "sstream": "cpp"
     }
 }

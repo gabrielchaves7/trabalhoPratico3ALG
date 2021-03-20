@@ -15,26 +15,6 @@ public:
     }
 };
 
-class Promocoes
-{
-public:
-    vector<int> valores;
-    void adicionarPromocao(int promocao){
-        this->valores.push_back(promocao);
-    }
-    int obterPromocaoCumulativa(int posicao){
-        int resultado = 0;
-        for(int i =0; i<=posicao; i++){
-            resultado += valores.at(i);
-            if(resultado >= 100){
-                return 100;
-            }
-        }
-
-        return resultado;
-    }
-};
-
 class Desconto
 {
 public:

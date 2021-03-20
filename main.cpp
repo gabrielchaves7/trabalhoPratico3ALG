@@ -5,10 +5,10 @@
 #include "entrada.h"
 using namespace std;
 
-int obterDescontoAcumulado(int descontos[], int posDesconto){
+int obterDescontoAcumulado(vector<int> descontos, int posDesconto){
     int descontoAcumulado = 0;
     for(int i =0; i <=posDesconto; i ++){
-        descontoAcumulado += descontos[i];
+        descontoAcumulado += descontos.at(i);
     }
 
     return descontoAcumulado;
@@ -31,7 +31,7 @@ Desconto acharMenorPrecoLinha(vector<Desconto> descontos){
     return melhorDesconto;
 }
 
-vector<vector<Desconto> > knapSack(int qtdEscalas, int limiteTempo, int qtdMaximaSequencia, int descontos[], vector<vector<Desconto> > matriz, vector<Escala> escalas)
+vector<vector<Desconto> > knapSack(int qtdEscalas, int limiteTempo, int qtdMaximaSequencia, vector<int> descontos, vector<vector<Desconto> > matriz, vector<Escala> escalas)
 {   
     int limiteSequencia = 2;
     for(int linhaAtual = 1; linhaAtual < qtdEscalas; linhaAtual ++){
@@ -72,15 +72,11 @@ vector<vector<Desconto> > knapSack(int qtdEscalas, int limiteTempo, int qtdMaxim
 int main()
 {
     int qtdEscalas, limiteSequencia, limiteTempo;
-    Promocoes promocoes;
+    vector<int> descontos;
     vector<Escala> vetorEscalas;
     leEntradaPrincipal(qtdEscalas, limiteSequencia, limiteTempo);
-    promocoes = leEntradaDescontos();
+    descontos = leEntradaDescontos();
     vetorEscalas = leEntradaEscalas(qtdEscalas);
-    int descontos[promocoes.valores.size()];
-    for(int i =0; i <promocoes.valores.size(); i++){
-        descontos[i] = promocoes.valores.at(i);
-    }
 
 
     vector<vector<Desconto> > matriz;
@@ -104,6 +100,6 @@ int main()
         }
     }
 
-    cout << fixed << setprecision(2) << melhorPreco << "\n";
+    cout << fixed << setprecision(2) << melhorPreco;
     return 0;
 }
