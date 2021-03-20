@@ -97,7 +97,13 @@ int main()
 
     matriz = knapSack(qtdEscalas, limiteTempo, limiteSequencia, descontos, matriz, vetorEscalas);
 
-    cout << "--------------- \n";
-    cout << "--------------- \n";
+    double melhorPreco = matriz.at(qtdEscalas - 1).at(0).precoAcumulado;
+    for(int i =1; i<limiteSequencia; i++){
+        if(matriz.at(qtdEscalas - 1).at(i).precoAcumulado < melhorPreco){
+            melhorPreco = matriz.at(qtdEscalas - 1).at(i).precoAcumulado;
+        }
+    }
+
+    cout << fixed << setprecision(2) << melhorPreco << "\n";
     return 0;
 }
